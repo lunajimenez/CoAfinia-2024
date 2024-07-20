@@ -14,69 +14,16 @@ import {
 } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { checkboxToBool } from "@/lib/checkboxToBool";
-import { toast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
+import { extractParams } from "@/lib/extractParams";
 
 const handleSubmit = async (formData: FormData) => {
 	"use server";
+	const URL = extractParams(formData);
 
-	const type = formData.get("type")?.toString();
+	if (!URL) return;
 
-	if (!type) return;
-
-	const department = formData.get("departament")?.toString();
-	const municipality = formData.get("municipality")?.toString();
-	const institution = formData.get("institution")?.toString();
-	const period = formData.get("period")?.toString();
-	const genre = formData.get("genre")?.toString();
-	const document = formData.get("document")?.toString();
-
-	const internet = checkboxToBool(
-		formData.get("internet")?.toString().toUpperCase() as string,
-	);
-	const car = checkboxToBool(
-		formData.get("car")?.toString().toUpperCase() as string,
-	);
-	const computer = checkboxToBool(
-		formData.get("computer")?.toString().toUpperCase() as string,
-	);
-	const laundry = checkboxToBool(
-		formData.get("laundry")?.toString().toUpperCase() as string,
-	);
-	const defaultParams = checkboxToBool(
-		formData.get("default")?.toString().toUpperCase() as string,
-	);
-
-	const stratum = formData.get("stratum")?.toString();
-
-	const params: { [key: string]: string | boolean | undefined } = {
-		type,
-		department,
-		municipality,
-		institution,
-		document,
-		period,
-		genre,
-		internet,
-		car,
-		computer,
-		laundry,
-		defaultParams,
-		stratum,
-	};
-
-	const searchParams = new URLSearchParams();
-
-	Object.keys(params).forEach((key) => {
-		if (!params[key]) return;
-
-		searchParams.append(key, encodeURIComponent(params[key].toString()));
-	});
-
-	const baseURL = "http://example.com";
-	const fullURL = `${baseURL}?${searchParams.toString()}`;
-	console.log(fullURL);
+	
 };
 
 const placeholder: string[] = ["A", "B", "C"];
@@ -164,10 +111,10 @@ function Saber11() {
 						<Tooltip>
 							<TooltipTrigger>
 								<div className="items-center flex space-x-2">
-									<Checkbox name="internet" />
+									<Checkbox name="internet" id="internet" />
 									<div className="grid gap-1.5 leading-none">
 										<label
-											htmlFor="terms1"
+											htmlFor="internet"
 											className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										>
 											Internet
@@ -184,10 +131,10 @@ function Saber11() {
 						<Tooltip>
 							<TooltipTrigger>
 								<div className="items-center flex space-x-2">
-									<Checkbox name="car" />
+									<Checkbox name="car" id="car" />
 									<div className="grid gap-1.5 leading-none">
 										<label
-											htmlFor="terms1"
+											htmlFor="car"
 											className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										>
 											Automovil
@@ -204,10 +151,10 @@ function Saber11() {
 						<Tooltip>
 							<TooltipTrigger>
 								<div className="items-center flex space-x-2">
-									<Checkbox name="computer" />
+									<Checkbox name="computer" id="computer" />
 									<div className="grid gap-1.5 leading-none">
 										<label
-											htmlFor="terms1"
+											htmlFor="computer"
 											className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										>
 											Computador
@@ -224,10 +171,10 @@ function Saber11() {
 						<Tooltip>
 							<TooltipTrigger>
 								<div className="items-center flex space-x-2">
-									<Checkbox name="laundry" />
+									<Checkbox name="laundry" id="laundry" />
 									<div className="grid gap-1.5 leading-none">
 										<label
-											htmlFor="terms1"
+											htmlFor="laundry"
 											className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										>
 											Lavadora
@@ -244,10 +191,14 @@ function Saber11() {
 						<Tooltip>
 							<TooltipTrigger>
 								<div className="items-center flex space-x-2">
-									<Checkbox name="default" />
+									<Checkbox
+										id="default"
+										name="default"
+										defaultChecked={true}
+									/>
 									<div className="grid gap-1.5 leading-none">
 										<label
-											htmlFor="terms1"
+											htmlFor="default"
 											className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										>
 											Default
