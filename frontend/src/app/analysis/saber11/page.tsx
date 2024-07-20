@@ -51,86 +51,94 @@ function Saber11() {
 	return (
 		<Content className="flex flex-col gap-4">
 			<form className="flex flex-wrap gap-2">
-				<Select defaultValue="saber11">
-					<SelectTrigger className="w-48">
-						<SelectValue placeholder="Tipo de Prueba" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="saber11">Saber 11</SelectItem>
-					</SelectContent>
-				</Select>
+				<section className="flex items-center gap-2 flex-wrap flex-grow">
+					<Select defaultValue="saber11">
+						<SelectTrigger className="w-48 flex-grow">
+							<SelectValue placeholder="Tipo de Prueba" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="saber11">Saber 11</SelectItem>
+						</SelectContent>
+					</Select>
 
-				<Select
-					onValueChange={(value) =>
-						dispatch({ type: "SET_DEPARTMENT", payload: value })
-					}
-				>
-					<SelectTrigger className="w-48">
-						<SelectValue placeholder="Departamento" />
-					</SelectTrigger>
-					<SelectContent>
-						{Array.from(Object.keys(data)).map((department) => (
-							<SelectItem key={department} value={department}>
-								{capitalize(department)}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+					<Select
+						onValueChange={(value) =>
+							dispatch({ type: "SET_DEPARTMENT", payload: value })
+						}
+					>
+						<SelectTrigger className="w-48 flex-grow">
+							<SelectValue placeholder="Departamento" />
+						</SelectTrigger>
+						<SelectContent>
+							{Array.from(Object.keys(data)).map((department) => (
+								<SelectItem key={department} value={department}>
+									{capitalize(department)}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
 
-				<Select
-					disabled={!state.department}
-					onValueChange={(value) =>
-						dispatch({ type: "SET_MUNICIPALITY", payload: value })
-					}
-				>
-					<SelectTrigger className="w-48">
-						<SelectValue placeholder="Municipio" />
-					</SelectTrigger>
-					<SelectContent>
-						{state.department &&
-							// @ts-ignore
-							Array.from(Object.keys(data[state.department])).map(
-								(municipality) => (
+					<Select
+						disabled={!state.department}
+						onValueChange={(value) =>
+							dispatch({
+								type: "SET_MUNICIPALITY",
+								payload: value,
+							})
+						}
+					>
+						<SelectTrigger className="w-48 flex-grow">
+							<SelectValue placeholder="Municipio" />
+						</SelectTrigger>
+						<SelectContent>
+							{state.department &&
+								Array.from(
+									// @ts-expect-error
+									Object.keys(data[state.department]),
+								).map((municipality) => (
 									<SelectItem
 										key={municipality}
 										value={municipality}
 									>
 										{capitalize(municipality)}
 									</SelectItem>
-								),
-							)}
-					</SelectContent>
-				</Select>
+								))}
+						</SelectContent>
+					</Select>
 
-				<Select
-					disabled={!state.municipality}
-					onValueChange={(value) =>
-						dispatch({ type: "SET_INSTITUTION", payload: value })
-					}
-				>
-					<SelectTrigger className="w-48">
-						<SelectValue placeholder="Institucion" />
-					</SelectTrigger>
-					<SelectContent>
-						{state.municipality &&
-							// @ts-expect-error
-							data[state.department][state.municipality].map(
+					<Select
+						disabled={!state.municipality}
+						onValueChange={(value) =>
+							dispatch({
+								type: "SET_INSTITUTION",
+								payload: value,
+							})
+						}
+					>
+						<SelectTrigger className="w-48 flex-grow">
+							<SelectValue placeholder="Institucion" />
+						</SelectTrigger>
+						<SelectContent>
+							{state.municipality &&
 								// @ts-expect-error
-								(institution) => {
-									const institutionName =
-										Object.keys(institution)[0];
-									return (
-										<SelectItem
-											value={institutionName}
-											key={institutionName}
-										>
-											{capitalizeAll(institutionName)}
-										</SelectItem>
-									);
-								},
-							)}
-					</SelectContent>
-				</Select>
+								data[state.department][state.municipality].map(
+									// @ts-expect-error
+									(institution) => {
+										const institutionName =
+											Object.keys(institution)[0];
+										return (
+											<SelectItem
+												value={institutionName}
+												key={institutionName}
+											>
+												{capitalizeAll(institutionName)}
+											</SelectItem>
+										);
+									},
+								)}
+						</SelectContent>
+					</Select>
+				</section>
 
 				<Button>Submit</Button>
 			</form>
