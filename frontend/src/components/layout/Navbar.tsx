@@ -12,6 +12,14 @@ const items: NavbarLinks[] = [
 		to: "/",
 	},
 	{
+		label: 'Saber11',
+		to: '/data/saber11'
+	},
+	{
+		label: 'SaberPro',
+		to: '/data/saber-pro'
+	},
+	{
 		label: "About",
 		to: "/about",
 	},
