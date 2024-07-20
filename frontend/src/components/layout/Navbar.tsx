@@ -16,6 +16,10 @@ const items: NavbarLinks[] = [
 		to: "/analysis",
 	},
 	{
+		label: 'Saber 11',
+		to: '/analysis/saber11'
+	},
+	{
 		label: "About",
 		to: "/about",
 	},
