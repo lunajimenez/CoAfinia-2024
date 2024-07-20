@@ -12,18 +12,23 @@ import { Button } from "@/components/ui/button";
 import { capitalize, capitalizeAll } from "@/lib/capitalize";
 import data from "@/lib/data_saber11.json";
 import { useReducer } from "react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 
 interface State {
 	type: string;
 	department?: string;
 	municipality?: string;
 	institution?: string;
+	subject?: string;
 }
 
 type Action =
 	| { type: "SET_DEPARTMENT"; payload: string }
 	| { type: "SET_MUNICIPALITY"; payload: string }
-	| { type: "SET_INSTITUTION"; payload: string };
+	| { type: "SET_INSTITUTION"; payload: string }
+	| { type: "SET_SUBJECT"; payload: string };
 
 function reducer(state: State, action: Action): State {
 	switch (action.type) {
@@ -33,16 +38,40 @@ function reducer(state: State, action: Action): State {
 			return { ...state, municipality: action.payload };
 		case "SET_INSTITUTION":
 			return { ...state, institution: action.payload };
+		case "SET_SUBJECT":
+			return { ...state, subject: action.payload };
 		default:
 			return { ...state };
 	}
 }
+
+const subjects: string[] = [
+	"ingles",
+	"sociales",
+	"matematicas",
+	"ciencias naturales",
+	"lectura critica",
+	"global",
+];
+
+const variables: string[] = [
+	"Estrato",
+	"Privado Libertad",
+	"Horas Trabajo",
+	"Tiene Automóvil",
+	"Tiene Lavadora",
+	"Tiene Computador",
+	"Tiene Internet",
+	"Nivel Estudio Padre",
+	"Nivel Estudio Madre",
+];
 
 const initialState: State = {
 	type: "saber11",
 	department: "",
 	municipality: "",
 	institution: "",
+	subject: "global",
 };
 
 function Saber11() {
@@ -138,6 +167,50 @@ function Saber11() {
 								)}
 						</SelectContent>
 					</Select>
+				</section>
+
+				<section>
+					<ToggleGroup
+						type="single"
+						variant="outline"
+						onValueChange={(value) =>
+							dispatch({
+								type: "SET_SUBJECT",
+								payload: value,
+							})
+						}
+					>
+						{subjects.map((subject) => (
+							<ToggleGroupItem
+								key={subject}
+								value={subject}
+								className={cn({
+									"opacity-25": state.subject !== subject,
+								})}
+							>
+								{capitalize(subject)}
+							</ToggleGroupItem>
+						))}
+					</ToggleGroup>
+				</section>
+
+				<section className="flex items-center border px-4 rounded flex-wrap gap-6">
+					{variables.map((variable) => (
+						<div
+							className="items-center flex space-x-2"
+							key={variable}
+						>
+							<Checkbox id={variable} />
+							<div className="grid gap-1.5 leading-none">
+								<label
+									htmlFor={variable}
+									className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+								>
+									{variable}
+								</label>
+							</div>
+						</div>
+					))}
 				</section>
 
 				<Button>Submit</Button>
