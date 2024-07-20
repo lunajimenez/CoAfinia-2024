@@ -1,5 +1,6 @@
+"use client";
+
 import { Content } from "@/components/ui/Content";
-import { RedirectTo } from "@/components/ui/RedirectTo";
 import {
 	Card,
 	CardContent,
@@ -11,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dev } from "@/lib/definitions";
+import Link from "next/link";
 
 const devs: Dev[] = [
 	{
@@ -49,9 +51,9 @@ export async function AboutPage() {
 						</CardContent>
 						<CardFooter>
 							{dev.links.map((link) => (
-								<RedirectTo key={link.label} href={link.href}>
+								<Link key={link.label} href={link.href}>
 									<Button>{link.label}</Button>
-								</RedirectTo>
+								</Link>
 							))}
 						</CardFooter>
 					</Card>
