@@ -1,6 +1,7 @@
-import { RedirectTo } from "@/components/ui/RedirectTo";
-import { Button } from "@/components/ui/button";
+"use client";
 
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 interface NavbarLinks {
 	label: string;
 	to: string;
@@ -16,8 +17,12 @@ const items: NavbarLinks[] = [
 		to: "/analysis",
 	},
 	{
-		label: 'Saber 11',
-		to: '/analysis/saber11'
+		label: "Saber 11",
+		to: "/analysis/saber11",
+	},
+	{
+		label: "Saber Pro",
+		to: "/analysis/saber-pro",
 	},
 	{
 		label: "About",
@@ -32,9 +37,9 @@ export function Navbar() {
 				<div className="text-secondary font-bold">CoAfinia - 2024</div>
 				<div className="inline-flex">
 					{items.map((item) => (
-						<RedirectTo key={item.label} href={item.to}>
+						<Link key={item.label} href={item.to}>
 							<Button>{item.label}</Button>
-						</RedirectTo>
+						</Link>
 					))}
 				</div>
 			</nav>

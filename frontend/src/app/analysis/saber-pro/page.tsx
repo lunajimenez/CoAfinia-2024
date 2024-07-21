@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { capitalize, capitalizeAll } from "@/lib/capitalize";
-import data from "@/lib/data_saber11.json";
+import data from "@/lib/data_saber_pro.json";
 import { useReducer } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -50,43 +50,35 @@ function reducer(state: State, action: Action): State {
 }
 
 const subjects: string[] = [
-	"ingles",
-	"sociales",
-	"matematicas",
-	"ciencias naturales",
+	"razonamiento cuantitativo",
 	"lectura critica",
+	"ingles",
+	"comunicaciones escritas",
+	"competencias ciudadanas",
 	"global",
 ];
 
 const variables: string[] = [
 	"Estrato",
 	"Privado Libertad",
-	"Cuartos Hogar",
-	"Genero",
+	"Horas Trabajo",
+	"Tiene Automóvil",
+	"Tiene Lavadora",
+	"Tiene Computador",
+	"Tiene Internet",
 	"Nivel Estudio Padre",
 	"Nivel Estudio Madre",
-	"Personas Hogar",
-	"Tiene Computador",
-	"Tiene Lavadora",
-	"Tiene Automóvil",
-	"Tiene Internet",
 ];
 
 const periods: string[] = [
-	"2014-2",
-	"2015-1",
-	"2015-2",
-	"2016-1",
-	"2016-2",
-	"2017-1",
-	"2017-2",
-	"2018-1",
-	"2019-1",
-	"2019-4",
-	"2020-1",
-	"2021-1",
-	"2022-1",
-	"2022-4",
+	"2018-3",
+	"2018-4",
+	"2019-5",
+	"2019-6",
+	"2020-3",
+	"2021-2",
+	"2022-2",
+	"2022-5",
 ];
 
 const initialState: State = {
@@ -138,13 +130,13 @@ const handleSubmit = ({
 	Object.entries(state).forEach(([key, value]) => {
 		if (!value) return;
 
-		searchParams.append(key, encodeURIComponent(value));
+		searchParams.append(key, value);
 	});
 
-	console.log(searchParams.toString());
+	searchParams.toString();
 };
 
-function Saber11() {
+function SaberPro() {
 	const [state, dispatch] = useReducer(reducer, initialState);
 
 	return (
@@ -154,12 +146,12 @@ function Saber11() {
 				onSubmit={(event) => handleSubmit({ event, state })}
 			>
 				<section className="flex items-center gap-2 flex-wrap flex-grow">
-					<Select defaultValue="saber11">
+					<Select defaultValue="saber-pro">
 						<SelectTrigger className="w-48 flex-grow">
 							<SelectValue placeholder="Tipo de Prueba" />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="saber11">Saber 11</SelectItem>
+							<SelectItem value="saber-pro">Saber Pro</SelectItem>
 						</SelectContent>
 					</Select>
 
@@ -319,4 +311,4 @@ function Saber11() {
 	);
 }
 
-export default Saber11;
+export default SaberPro;
