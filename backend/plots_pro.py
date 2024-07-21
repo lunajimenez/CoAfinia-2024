@@ -1,57 +1,68 @@
 import os
+import json
 import zipfile
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-
 df = pd.read_csv('data/Resultados_Saber_Pro_nonull.csv')
 
 def to_zip(zip_path: str, folder_to_zip: str = '') -> None:
-	""" Función para convertir las imagenes de extensión '.png' de cierta carpeta
-	 a un archivo '.zip'. El archivo zip resultante será almacenado en con la 
-	 dirección de `zip_path` """
-	with zipfile.ZipFile(zip_path, 'w') as zipf:
-		for file in os.listdir(folder_to_zip):
-			if os.path.splitext(file)[1] != '.png':
-				continue
-			zipf.write(os.path.join(folder_to_zip, file), os.path.basename(file))
+    """ 
+    Función para convertir las imágenes de extensión '.png' y archivos '.json' de cierta carpeta
+    a un archivo '.zip'. El archivo zip resultante será almacenado en con la dirección de `zip_path`.
+    """
+    with zipfile.ZipFile(zip_path, 'w') as zipf:
+        for file in os.listdir(folder_to_zip):
+            if os.path.splitext(file)[1] in ['.png', '.json']:
+                zipf.write(os.path.join(folder_to_zip, file), os.path.basename(file))
 
 
 def plot_circular_diagram(sub_df: pd.DataFrame, y_label: str, path: str,
-						  title: str = '', figsize: tuple = (12, 12),
-						  autopct: str = '%1.1f%%', startangle: int = 130,
-						  pctdistance: float = 0.8) -> None:
-	""" Graficar los diagramas circulares. Se utiliza mayormente para las variables
-	 socioeconomicas """
-	counts = sub_df[y_label].value_counts()
-	fig, ax = plt.subplots(figsize=figsize)
-	ax.pie(counts, labels=counts.index, autopct=autopct, startangle=startangle, pctdistance=pctdistance)
-	ax.set_title(title)
-	plt.savefig(path, transparent=True)
+                          title: str = '', figsize: tuple = (12, 12),
+                          autopct: str = '%1.1f%%', startangle: int = 130,
+                          pctdistance: float = 0.8, colors: list = None, ring: bool = True) -> None:
+    """ 
+    Graficar los diagramas circulares con anillos y colores que representan a Colombia (exceptuando el rosado).
+    """
+    counts = sub_df[y_label].value_counts()
+    fig, ax = plt.subplots(figsize=figsize)
+    if colors is None:
+        colors = sns.color_palette([color for color in sns.color_palette("pastel") if color != (1, 0.75, 0.796)])  
+    if ring:
+        ax.pie(counts, labels=counts.index, autopct=autopct, startangle=startangle,
+               pctdistance=pctdistance, colors=colors, wedgeprops=dict(width=0.3))
+    else:
+        ax.pie(counts, labels=counts.index, autopct=autopct, startangle=startangle,
+               pctdistance=pctdistance, colors=colors)
+    ax.set_title(title, fontweight='bold')
+    plt.savefig(path, transparent=True)
 
 
 def plot_histogram(sub_df: pd.DataFrame, x: str, path: str, title: str = '', x_label: str = '',
-					y_label: str = '', figsize: tuple = (12, 12), hue: str | None = None) -> None:
-	""" Graficar un histograma. Se utiliza solo para comparar las puntuaciones de determinada competencia """
-	fig, ax = plt.subplots(figsize=figsize)
-	ax.set(title=title, xlabel=x_label, ylabel=y_label)
-	sns.histplot(sub_df, x=x, stat='count', kde=True, hue=hue, ax=ax)
-	plt.savefig(path, transparent=True)
-	
+                   y_label: str = '', figsize: tuple = (12, 12), hue: str | None = None) -> None:
+    """ 
+    Graficar un histograma. Se utiliza solo para comparar las puntuaciones de determinada competencia.
+    """
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.set_title(title, fontweight='bold')
+    ax.set_xlabel(x_label, fontweight='bold')
+    ax.set_ylabel(y_label, fontweight='bold')
+    sns.histplot(sub_df, x=x, stat='count', kde=True, hue=hue, ax=ax, palette=sns.color_palette(['#CE1126', '#0033A0','#FFD700', '#CE1126']))
+    plt.savefig(path, transparent=True)
 	
 def plot_socioeconomic_variables(sub_df: pd.DataFrame) -> None:
 	""" Graficar con diagramas circulares las variables socioeconomicas y guardar los archvios """
-	plot_circular_diagram(sub_df, 'FAMI_ESTRATOVIVIENDA', 'static/imgs/saber_pro/estrato.png', title='ESTRATO VIVIENDA')
-	plot_circular_diagram(sub_df, 'ESTU_HORASSEMANATRABAJA', 'static/imgs/saber_pro/horas_semana.png', title='HORAS TRABAJADAS POR SEMANA')
-	plot_circular_diagram(sub_df, 'ESTU_GENERO', 'static/imgs/saber_pro/genero.png', title='GENERO ESTUDIANTE')
-	plot_circular_diagram(sub_df, 'FAMI_TIENEAUTOMOVIL', 'static/imgs/saber_pro/automovil.png', title='TIENE AUTOMOVIL')
-	plot_circular_diagram(sub_df, 'FAMI_TIENELAVADORA', 'static/imgs/saber_pro/lavadora.png', title='TIENE LAVADORA')
-	plot_circular_diagram(sub_df, 'FAMI_TIENECOMPUTADOR', 'static/imgs/saber_pro/computador.png', title='TIENE COMPUTADORA')
-	plot_circular_diagram(sub_df, 'FAMI_TIENEINTERNET', 'static/imgs/saber_pro/internet.png', title='TIENE INTERNET')
-	plot_circular_diagram(sub_df, 'FAMI_EDUCACIONMADRE', 'static/imgs/saber_pro/educacion_madre.png', title='NIVEL EDUCATIVO MADRE')
-	plot_circular_diagram(sub_df, 'FAMI_EDUCACIONPADRE', 'static/imgs/saber_pro/educacion_padre.png', title='NIVEL EDUCATIVO PADRE')
-
+	colors = sns.color_palette([color for color in sns.color_palette("pastel") if color != (1, 0.75, 0.796)])  # Excluir el rosado
+	plot_circular_diagram(sub_df, 'FAMI_ESTRATOVIVIENDA', 'static/imgs/saber_pro/estrato.png', title='ESTRATO VIVIENDA', colors=colors)
+	plot_circular_diagram(sub_df, 'FAMI_EDUCACIONMADRE', 'static/imgs/saber_pro/educacion_madre.png', title='NIVEL EDUCATIVO MADRE', colors=colors)
+	plot_circular_diagram(sub_df, 'FAMI_EDUCACIONPADRE', 'static/imgs/saber_pro/educacion_padre.png', title='NIVEL EDUCATIVO PADRE', colors=colors)
+	plot_circular_diagram(sub_df, 'ESTU_HORASSEMANATRABAJA', 'static/imgs/saber_pro/horas_semana.png', title='HORAS TRABAJADAS POR SEMANA', colors=colors)
+	plot_circular_diagram(sub_df, 'ESTU_GENERO', 'static/imgs/saber_pro/genero.png', title='GENERO ESTUDIANTE', colors=colors, ring = False)
+	plot_circular_diagram(sub_df, 'FAMI_TIENEAUTOMOVIL', 'static/imgs/saber_pro/automovil.png', title='TIENE AUTOMOVIL', colors=colors, ring = False)
+	plot_circular_diagram(sub_df, 'FAMI_TIENELAVADORA', 'static/imgs/saber_pro/lavadora.png', title='TIENE LAVADORA', colors=colors, ring = False)
+	plot_circular_diagram(sub_df, 'FAMI_TIENECOMPUTADOR', 'static/imgs/saber_pro/computador.png', title='TIENE COMPUTADORA', colors=colors, ring = False)
+	plot_circular_diagram(sub_df, 'FAMI_TIENEINTERNET', 'static/imgs/saber_pro/internet.png', title='TIENE INTERNET', colors=colors, ring = False)
 
 def plot_puntuations_variables(sub_df: pd.DataFrame, hue: str | None = None) -> None:
 	""" Graficar los histogramas con las puntuaciones de cada una de las competencias """
@@ -133,3 +144,28 @@ def plot_graphs_saber_pro(**kwargs) -> None:
 	plot_socioeconomic_variables(sub_df)
 	
 	to_zip('static/imgs/saber_pro/imgs.zip', 'static/imgs/saber_pro')
+     
+# Lista de columnas a describir
+columns_to_describe = [
+    'MOD_RAZONA_CUANTITAT_PUNT', 
+    'MOD_COMUNI_ESCRITA_PUNT', 
+    'MOD_INGLES_PUNT', 
+    'MOD_LECTURA_CRITICA_PUNT', 
+    'MOD_COMPETEN_CIUDADA_PUNT'
+]
+
+# Descripción de las columnas seleccionadas
+df_describe = df[columns_to_describe].describe()
+
+# Conversión de la descripción a un formato más organizado
+description_dict = {}
+for column in df_describe.columns:
+    description_dict[column] = df_describe[column].to_dict()
+
+# Guardado de la descripción en un archivo JSON
+json_path = 'static/imgs/saber_pro/data_description.json'
+with open(json_path, 'w') as json_file:
+    json.dump(description_dict, json_file, indent=4)
+
+# Empaquetar el archivo JSON en un archivo ZIP separado
+to_zip('static/imgs/saber_pro/json.zip', [json_path])
