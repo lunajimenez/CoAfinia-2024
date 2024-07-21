@@ -72,7 +72,6 @@ const subjects: string[] = [
 
 const variables: string[] = [
 	"Estrato",
-	"Privado Libertad",
 	"Cuartos Hogar",
 	"Genero",
 	"Nivel Estudio Padre",
@@ -183,7 +182,7 @@ function Saber11() {
 	);
 
 	useEffect(() => {
-		fetch("/api/utils/zip", {
+		fetch("/api/utils/zip?ext=png", {
 			method: "POST",
 			body: zip,
 		})

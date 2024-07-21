@@ -23,9 +23,9 @@ function Home() {
 			</div>
 			<div className="h-full flex gap-2 flex-col">
 				<h1 className="text-3xl font-bold">Analisis Pruebas ICFES</h1>
-				<span className="text-sm">Colombia</span>
+				<span className="text-xs">Colombia</span>
 				<p className="text-sm">
-					Aqui podras visualizar un análisis detallados de las pruebas
+					Aqui podras visualizar un análisis detallado de las pruebas
 					Saber 11 y Saber Pro en Colombia. Proporciona una interfaz
 					interactiva que permite a los usuarios explorar los
 					resultados de estas evaluaciones educativas a nivel
