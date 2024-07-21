@@ -1,0 +1,21 @@
+from plots_pro import *
+from flask import Flask, request, send_file
+
+
+app = Flask(__name__)
+
+
+@app.route("/saber_pro/zip_file", methods=['GET'])
+def zip_file():
+	kwargs = request.args.to_dict()
+	kwargs['period'] = int(kwargs['period'])
+
+	plot_graphs_saber_pro(**kwargs)
+	zip_path = 'static/imgs/saber_pro/imgs.zip'
+
+	return send_file(zip_path, as_attachment=True)
+
+
+if __name__ == '__main__':
+	app.run(debug=True)
+
