@@ -21,7 +21,6 @@ import data from "@/lib/data_saber11.json";
 import { useReducer, useState, useCallback, useEffect } from "react";
 import { Triangle } from "react-loader-spinner";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 interface State {
 	type: string;
@@ -380,11 +379,10 @@ function Saber11() {
 									className="w-[300px] aspect-video"
 								>
 									{/* eslint-disable-next-line @next/next/no-img-element */}
-									<Image
+									<img
 										alt={file.fileName}
 										src={`data:image/*;base64,${file.content}`}
 										className="h-full w-full rounded-md"
-										fill
 									/>
 								</CarouselItem>
 							))}
