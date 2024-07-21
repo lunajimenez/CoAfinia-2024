@@ -26,6 +26,20 @@ const devs: Dev[] = [
 			{ href: "https://github.com/MauroGonzalez51", label: "Github" },
 		],
 	},
+	{
+		name: "Luna Jimenez",
+		description: "College Student",
+		image: "https://avatars.githubusercontent.com/u/127508891?v=4",
+		initials: "LJ",
+		content:
+			"Hello everyone! My name is Luna Jimenez, I am currently studying mechatronics and mechanical engineering at the Universidad Tecnológica de Bolívar in Cartagena - Colombia. I like challenges and never stop learning!",
+		links: [
+			{
+				href: "https://github.com/lunajimenez",
+				label: "Github",
+			},
+		],
+	},
 ];
 
 export async function AboutPage() {
