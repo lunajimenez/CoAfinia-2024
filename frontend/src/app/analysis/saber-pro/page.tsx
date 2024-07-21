@@ -18,9 +18,10 @@ import {
 } from "@/components/ui/carousel";
 import { capitalize, capitalizeAll } from "@/lib/capitalize";
 import data from "@/lib/data_saber11.json";
-import { useReducer, useState, useCallback } from "react";
+import { useReducer, useState, useCallback, useEffect } from "react";
 import { Triangle } from "react-loader-spinner";
 import { cn } from "@/lib/utils";
+import { API_URL } from "@/lib/constants";
 
 interface State {
 	type: string;
@@ -110,11 +111,12 @@ function SaberPro() {
 		(event: React.FormEvent<HTMLFormElement>) => {
 			event.preventDefault();
 
-			setLoading(true);
 			setFiles(undefined);
 
 			const { elements } = event.currentTarget;
 			const searchParams = new URLSearchParams();
+
+			if (!state.period) return;
 
 			variables
 				.map((variable) => {
@@ -151,26 +153,40 @@ function SaberPro() {
 				searchParams.append(key, encodeURIComponent(value));
 			});
 
-			searchParams.toString();
-
-			// ! After sending the params to the backend
-
-			// ! Getting the zip back, so gotta parse it
-
-			fetch("/api/utils/zip", {
-				method: "POST",
-				body: zip,
+			setLoading(true);
+			
+			fetch(`${API_URL}/saber_pro/zip_file?${searchParams.toString()}`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+				},
 			})
 				.then((response) => {
 					if (!response.ok) throw new Error(response.statusText);
-					return response.json();
+					return response.blob();
 				})
-				.then(({ files }: { files: ResponseFile[] }) => setFiles(files))
-				.catch((error) => console.error(error))
-				.finally(() => setLoading(false));
+				.then((response) => setZip(response))
+				.catch((error) => {
+					console.log(error);
+					setLoading(false);
+				});
 		},
-		[state, zip],
+		[state],
 	);
+
+	useEffect(() => {
+		fetch("/api/utils/zip", {
+			method: "POST",
+			body: zip,
+		})
+			.then((response) => {
+				if (!response.ok) throw new Error(response.statusText);
+				return response.json();
+			})
+			.then(({ files }: { files: ResponseFile[] }) => setFiles(files))
+			.catch((error) => console.error(error))
+			.finally(() => setLoading(false));
+	}, [zip]);
 
 	return (
 		<Content className="flex flex-col gap-4">
