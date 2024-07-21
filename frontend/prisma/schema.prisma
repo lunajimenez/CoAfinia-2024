@@ -1,0 +1,91 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+// datasource db {
+//     provider  = "postgresql"
+//     url       = env("POSTGRES_PRISMA_URL") 
+//     directUrl = env("POSTGRES_URL_NON_POOLING") 
+// }
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Department {
+    id           String         @id @default(cuid())
+    name         String
+    code         Int
+    municipality Municipality[]
+}
+
+model Municipality {
+    id   String @id @default(cuid())
+    name String
+
+    institutions Institution[]
+    departmentId String
+    department   Department    @relation(fields: [departmentId], references: [id])
+}
+
+enum ACADEMIC_CHARACTER {
+    UNIVERSITY_INSTITUTION
+    UNIVERSITY
+    PROFESSIONAL_TECHNICIAN
+    TECHNOLOGICAL_INSTITUTION
+}
+
+model Institution {
+    id                String             @id @default(cuid())
+    name              String
+    reports           Report[]
+    academicCharacter ACADEMIC_CHARACTER
+
+    municipalityId String
+    municipality   Municipality @relation(fields: [municipalityId], references: [id])
+}
+
+enum REPORT_TYPE {
+    SABER11
+    SABER_PRO
+}
+
+model Report {
+    id       String      @id @default(cuid())
+    date     DateTime
+    students Student[]
+    type     REPORT_TYPE
+
+    institutionId String
+    institution   Institution @relation(fields: [institutionId], references: [id])
+}
+
+model Student {
+    id            String         @id @default(cuid())
+    subjects      Subject[]
+    studentParams StudentParams?
+    reportId      String
+    report        Report         @relation(fields: [reportId], references: [id])
+}
+
+model StudentParams {
+    id        String  @id @default(cuid())
+    studentId String  @unique
+    student   Student @relation(fields: [studentId], references: [id])
+
+    genre                         String?
+    stratum                       Int?
+    studentHasCreditToPaid        Boolean?
+    studentPaidByHimself          Boolean?
+    hisParentsPaidTheRegistration Boolean?
+}
+
+model Subject {
+    id         String @id @default(cuid())
+    name       String
+    puntuation Float
+
+    studentId String
+    student   Student @relation(fields: [studentId], references: [id])
+}
