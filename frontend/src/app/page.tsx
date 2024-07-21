@@ -2,17 +2,24 @@ import { Content } from "@/components/ui/Content";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
 function Home() {
 	return (
 		<Content className="grid grid-cols-2 gap-6">
 			<div className="h-full relative">
-				<Image
-					src="/map.jpg"
-					alt="Colombian Map"
-					fill
-					className="rounded-md"
-				/>
+				<Suspense
+					fallback={
+						<div className="h-full w-full bg-gray-300 animate-pulse rounded-md"></div>
+					}
+				>
+					<Image
+						src="/map.jpg"
+						alt="Colombian Map"
+						fill
+						className="rounded-md"
+					/>
+				</Suspense>
 			</div>
 			<div className="h-full flex gap-2 flex-col">
 				<h1 className="text-3xl font-bold">Analisis Pruebas ICFES</h1>
