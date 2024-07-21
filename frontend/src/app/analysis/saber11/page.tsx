@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/carousel";
 import { capitalize, capitalizeAll } from "@/lib/capitalize";
 import data from "@/lib/data_saber11.json";
-import { useReducer, useState, useCallback, useEffect } from "react";
+import { useReducer, useState, useCallback } from "react";
 import { Triangle } from "react-loader-spinner";
 import { cn } from "@/lib/utils";
 
@@ -111,23 +111,16 @@ const initialState: State = {
 function Saber11() {
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const [zip, setZip] = useState<Blob>(new Blob());
-	const [files, setFiles] = useState<ResponseFile[]>();
+	const [files, setFiles] = useState<ResponseFile[] | undefined>();
 	const [loading, setLoading] = useState<boolean>();
-
-	useEffect(() => {
-		fetch("/zip.zip")
-			.then((response) => response.blob())
-			.then((blob) => setZip(blob))
-			.catch((error) => {
-				console.error("Error fetching the ZIP file:", error);
-			});
-	}, []);
 
 	const handleSubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
 			event.preventDefault();
 
 			setLoading(true);
+			setFiles(undefined);
+
 			const { elements } = event.currentTarget;
 			const searchParams = new URLSearchParams();
 
@@ -360,7 +353,7 @@ function Saber11() {
 							visible={true}
 							height="80"
 							width="80"
-							color="#850de6"
+							color="#7F727A"
 							ariaLabel="triangle-loading"
 							wrapperStyle={{}}
 							wrapperClass=""

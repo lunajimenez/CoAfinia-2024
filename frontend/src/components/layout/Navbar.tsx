@@ -11,11 +11,7 @@ const items: NavbarLinks[] = [
 	{
 		label: "Home",
 		to: "/",
-	},
-	{
-		label: "Analysis",
-		to: "/analysis",
-	},
+	},	
 	{
 		label: "Saber 11",
 		to: "/analysis/saber11",
