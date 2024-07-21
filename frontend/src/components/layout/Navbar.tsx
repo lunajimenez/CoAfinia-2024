@@ -30,7 +30,7 @@ export function Navbar() {
 	return (
 		<header className="w-screen h-14 bg-primary px-10">
 			<nav className="w-full h-full inline-flex items-center gap-2">
-				<div className="text-secondary font-bold">CoAfinia - 2024</div>
+				<div className="text-secondary font-bold">Visualización datos ICFES</div>
 				<div className="inline-flex">
 					{items.map((item) => (
 						<Link key={item.label} href={item.to}>

@@ -33,12 +33,25 @@ const devs: Dev[] = [
 		initials: "LJ",
 		content:
 			"Hello everyone! My name is Luna Jimenez, I am currently studying mechatronics and mechanical engineering at the Universidad Tecnológica de Bolívar in Cartagena - Colombia. I like challenges and never stop learning!",
-		links: [
-			{
-				href: "https://github.com/lunajimenez",
-				label: "Github",
-			},
-		],
+		links: [{ href: "https://github.com/lunajimenez", label: "Github" }],
+	},
+	{
+		name: "Juan Diego",
+		description: "College Student",
+		image: "",
+		initials: "JD",
+		content:
+			"Hello 👋 , my name is Juan Diego Perez, I am a computer and systems engineering student. I'm passionate about data science, in software development I'm in charge of the backend.",
+		links: [{ href: "https://github.com/dosquisd", label: "Github" }],
+	},
+	{
+		name: "Camila García",
+		description: "College Student",
+		image: "",
+		initials: "CG",
+		content:
+			"Hi! My name is Camila García, I'm currently studying systems and computer engineering degree at the Universidad Tecnológica de Bolívar. I hope that this challenge will allow us to learn new things and that all our team can enjoy it.",
+		links: [{ href: "github.com/mcamilags", label: "Github" }],
 	},
 ];
 
