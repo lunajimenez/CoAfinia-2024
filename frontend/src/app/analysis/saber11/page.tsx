@@ -15,6 +15,7 @@ import { useReducer } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { EmptyToUnknown } from "@prisma/client/runtime/library";
 
 interface State {
 	type: string;
@@ -74,12 +75,62 @@ const initialState: State = {
 	subject: "global",
 };
 
+const handleSubmit = ({
+	event,
+	state,
+}: {
+	event: React.FormEvent<HTMLFormElement>;
+	state: State;
+}) => {
+	event.preventDefault();
+
+	const { elements } = event.currentTarget;
+	const searchParams = new URLSearchParams();
+
+	variables
+		.map((variable) => {
+			const group = elements.namedItem(variable);
+
+			if (!group) return null;
+
+			if (!(group instanceof RadioNodeList)) return null;
+
+			const node = Array.from(group)[1];
+
+			if (!(node instanceof HTMLInputElement)) return null;
+
+			return { label: variable.split(" ").join(""), value: node.checked };
+		})
+		.filter(
+			(value): value is { label: string; value: boolean } =>
+				value !== null && value !== undefined,
+		)
+		.filter(({ value }) => value)
+		.forEach(({ label, value }) =>
+			searchParams.append(
+				encodeURIComponent(label),
+				encodeURIComponent(value),
+			),
+		);
+
+	Object.entries(state).forEach(([key, value]) => {
+		if (!value) return;
+
+		searchParams.append(key, encodeURIComponent(value));
+	});
+
+	searchParams.toString()
+};
+
 function Saber11() {
 	const [state, dispatch] = useReducer(reducer, initialState);
 
 	return (
 		<Content className="flex flex-col gap-4">
-			<form className="flex flex-wrap gap-2">
+			<form
+				className="flex flex-wrap gap-2"
+				onSubmit={(event) => handleSubmit({ event, state })}
+			>
 				<section className="flex items-center gap-2 flex-wrap flex-grow">
 					<Select defaultValue="saber11">
 						<SelectTrigger className="w-48 flex-grow">
@@ -194,13 +245,13 @@ function Saber11() {
 					</ToggleGroup>
 				</section>
 
-				<section className="flex items-center border px-4 rounded flex-wrap gap-6">
+				<section className="flex items-center border px-4 py-6 rounded flex-wrap gap-6">
 					{variables.map((variable) => (
 						<div
 							className="items-center flex space-x-2"
 							key={variable}
 						>
-							<Checkbox id={variable} />
+							<Checkbox id={variable} name={variable} />
 							<div className="grid gap-1.5 leading-none">
 								<label
 									htmlFor={variable}
