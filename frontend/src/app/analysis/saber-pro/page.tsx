@@ -72,7 +72,6 @@ const subjects: string[] = [
 
 const variables: string[] = [
 	"Estrato",
-	"Privado Libertad",
 	"Horas Trabajo",
 	"Tiene Automóvil",
 	"Tiene Lavadora",
