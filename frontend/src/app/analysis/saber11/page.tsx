@@ -9,12 +9,19 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { capitalize, capitalizeAll } from "@/lib/capitalize";
-import data from "@/lib/data_saber11.json";
-import { useReducer } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+} from "@/components/ui/carousel";
+import { capitalize, capitalizeAll } from "@/lib/capitalize";
+import data from "@/lib/data_saber11.json";
+import { useReducer, useState, useCallback, useEffect } from "react";
+import { Triangle } from "react-loader-spinner";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface State {
 	type: string;
@@ -31,6 +38,11 @@ type Action =
 	| { type: "SET_INSTITUTION"; payload: string }
 	| { type: "SET_SUBJECT"; payload: string }
 	| { type: "SET_PERIOD"; payload: string };
+
+interface ResponseFile {
+	fileName: string;
+	content: string;
+}
 
 function reducer(state: State, action: Action): State {
 	switch (action.type) {
@@ -97,62 +109,88 @@ const initialState: State = {
 	subject: "global",
 };
 
-const handleSubmit = ({
-	event,
-	state,
-}: {
-	event: React.FormEvent<HTMLFormElement>;
-	state: State;
-}) => {
-	event.preventDefault();
-
-	const { elements } = event.currentTarget;
-	const searchParams = new URLSearchParams();
-
-	variables
-		.map((variable) => {
-			const group = elements.namedItem(variable);
-
-			if (!group) return null;
-
-			if (!(group instanceof RadioNodeList)) return null;
-
-			const node = Array.from(group)[1];
-
-			if (!(node instanceof HTMLInputElement)) return null;
-
-			return { label: variable.split(" ").join(""), value: node.checked };
-		})
-		.filter(
-			(value): value is { label: string; value: boolean } =>
-				value !== null && value !== undefined,
-		)
-		.filter(({ value }) => value)
-		.forEach(({ label, value }) =>
-			searchParams.append(
-				encodeURIComponent(label),
-				encodeURIComponent(value),
-			),
-		);
-
-	Object.entries(state).forEach(([key, value]) => {
-		if (!value) return;
-
-		searchParams.append(key, encodeURIComponent(value));
-	});
-
-	console.log(searchParams.toString());
-};
-
 function Saber11() {
 	const [state, dispatch] = useReducer(reducer, initialState);
+	const [zip, setZip] = useState<Blob>(new Blob());
+	const [files, setFiles] = useState<ResponseFile[]>();
+	const [loading, setLoading] = useState<boolean>();
+
+	useEffect(() => {
+		fetch("/zip.zip")
+			.then((response) => response.blob())
+			.then((blob) => setZip(blob))
+			.catch((error) => {
+				console.error("Error fetching the ZIP file:", error);
+			});
+	}, []);
+
+	const handleSubmit = useCallback(
+		(event: React.FormEvent<HTMLFormElement>) => {
+			event.preventDefault();
+
+			setLoading(true);
+			const { elements } = event.currentTarget;
+			const searchParams = new URLSearchParams();
+
+			variables
+				.map((variable) => {
+					const group = elements.namedItem(variable);
+
+					if (!group) return null;
+
+					if (!(group instanceof RadioNodeList)) return null;
+
+					const node = Array.from(group)[1];
+
+					if (!(node instanceof HTMLInputElement)) return null;
+
+					return {
+						label: variable.split(" ").join(""),
+						value: node.checked,
+					};
+				})
+				.filter(
+					(value): value is { label: string; value: boolean } =>
+						value !== null && value !== undefined,
+				)
+				.filter(({ value }) => value)
+				.forEach(({ label, value }) =>
+					searchParams.append(
+						encodeURIComponent(label),
+						encodeURIComponent(value),
+					),
+				);
+
+			Object.entries(state).forEach(([key, value]) => {
+				if (!value) return;
+
+				searchParams.append(key, encodeURIComponent(value));
+			});
+
+			searchParams.toString();
+
+			// ! After sending the params to the backend
+
+			// ! Getting the zip back, so gotta parse it
+
+			fetch("/api/utils/zip", {
+				method: "POST",
+				body: zip,
+			})
+				.then((response) => {
+					if (!response.ok) throw new Error(response.statusText);
+					return response.json();
+				})
+				.then(({ files }: { files: ResponseFile[] }) => setFiles(files))
+				.catch((error) => console.error(error))
+				.finally(() => setLoading(false));
+		},
+		[state, zip],
+	);
 
 	return (
 		<Content className="flex flex-col gap-4">
-			<form
-				className="flex flex-wrap gap-2"
-				onSubmit={(event) => handleSubmit({ event, state })}
-			>
+			<form className="flex flex-wrap gap-2" onSubmit={handleSubmit}>
 				<section className="flex items-center gap-2 flex-wrap flex-grow">
 					<Select defaultValue="saber11">
 						<SelectTrigger className="w-48 flex-grow">
@@ -309,12 +347,51 @@ function Saber11() {
 
 				<Button className="flex-grow">Submit</Button>
 			</form>
-			<div className="border-2 border-dashed border-gray-500 flex items-center justify-center animate-pulse w-full h-screen">
-				<p className="text-gray-500">
-					Aquí se mostrarán los gráficos una vez seleccionadas las
-					variables.
-				</p>
-			</div>
+			{!files && (
+				<div className="border-2 border-dashed border-gray-500 flex items-center justify-center animate-pulse w-full h-screen">
+					{!loading && (
+						<p className="text-gray-500">
+							Aquí se mostrarán los gráficos una vez seleccionadas
+							las variables.
+						</p>
+					)}
+
+					{loading && (
+						<Triangle
+							visible={true}
+							height="80"
+							width="80"
+							color="#850de6"
+							ariaLabel="triangle-loading"
+							wrapperStyle={{}}
+							wrapperClass=""
+						/>
+					)}
+				</div>
+			)}
+
+			{files && (
+				<div className="flex items-center justify-center w-full h-screen">
+					<Carousel className="w-full h-full">
+						<CarouselContent>
+							{files.map((file) => (
+								<CarouselItem
+									key={file.fileName}
+									className="w-[300px] aspect-video"
+								>
+									{/* eslint-disable-next-line @next/next/no-img-element */}
+									<Image
+										alt={file.fileName}
+										src={`data:image/*;base64,${file.content}`}
+										className="h-full w-full rounded-md"
+										fill
+									/>
+								</CarouselItem>
+							))}
+						</CarouselContent>
+					</Carousel>
+				</div>
+			)}
 		</Content>
 	);
 }
