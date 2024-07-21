@@ -5,7 +5,6 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('data/Resultados_Saber_11_nonull.csv')
 
 def to_zip(zip_path: str, folder_to_zip: str = '') -> None:
     """ 
@@ -16,6 +15,31 @@ def to_zip(zip_path: str, folder_to_zip: str = '') -> None:
         for file in os.listdir(folder_to_zip):
             if os.path.splitext(file)[1] in ['.png', '.json']:
                 zipf.write(os.path.join(folder_to_zip, file), os.path.basename(file))
+
+def df_describe_to_json(sub_df: pd.DataFrame) -> None:
+    # Lista de columnas a describir
+    columns_to_describe = [
+        'PUNT_INGLES', 
+        'PUNT_MATEMATICAS', 
+        'PUNT_SOCIALES_CIUDADANAS', 
+        'PUNT_C_NATURALES', 
+        'PUNT_LECTURA_CRITICA', 
+        'PUNT_GLOBAL'
+    ]
+
+    # Descripción de las columnas seleccionadas
+    df_describe = sub_df[columns_to_describe].describe()
+
+    # Conversión de la descripción a un formato más organizado
+    description_dict = {}
+    for column in df_describe.columns:
+        description_dict[column] = df_describe[column].to_dict()
+
+    # Guardado de la descripción en un archivo JSON
+    json_path = 'static/imgs/saber_11/data_description.json'
+    with open(json_path, 'w') as json_file:
+        json.dump(description_dict, json_file, indent=4)
+
 
 def plot_circular_diagram(sub_df: pd.DataFrame, y_label: str, path: str,
                           title: str = '', figsize: tuple = (12, 12),
@@ -77,7 +101,7 @@ def plot_puntuations_variables(sub_df: pd.DataFrame, hue: str | None = None) -> 
     plot_histogram(sub_df, x='PUNT_GLOBAL', path='static/imgs/saber_11/puntaje_global.png',
                     x_label='PUNTAJE', y_label='CANTIDAD', title='PUNTAJE GLOBAL', hue=hue)
 
-def plot_graphs_saber_once(**kwargs) -> None:
+def plot_graphs_saber_once(df: pd.DataFrame, **kwargs) -> None:
     """
     Graficar todas las variables socioeconómicas y las puntuaciones con ayuda de las funciones
     anteriormente creadas. Si a la función no se le especifican departamento, entonces lo que se quiere comparar
@@ -104,6 +128,7 @@ def plot_graphs_saber_once(**kwargs) -> None:
     sub_df = df[df['PERIODO'] == period]
     if not any('department' in param and kwargs[param] is not None for param in keys):
         # No tiene departamento -> Analizar país
+        df_describe_to_json(sub_df)
         plot_puntuations_variables(sub_df)
         plot_socioeconomic_variables(sub_df)
 
@@ -114,6 +139,7 @@ def plot_graphs_saber_once(**kwargs) -> None:
     sub_df = sub_df[sub_df[label_dept].isin(depts)]
     if not any('municipality' in param and kwargs[param] is not None for param in keys):
         # Tiene departamento -> No municipio
+        df_describe_to_json(sub_df)
         plot_puntuations_variables(sub_df, hue=label_dept if len(depts) > 1 else None)
         plot_socioeconomic_variables(sub_df)
 
@@ -124,6 +150,7 @@ def plot_graphs_saber_once(**kwargs) -> None:
     sub_df = sub_df[sub_df[label_municipality].isin(munis)]
     if not any('institution' in param and kwargs[param] is not None for param in keys):
         # Tiene Municipio -> No institución
+        df_describe_to_json(sub_df)
         plot_puntuations_variables(sub_df, hue=label_municipality if len(munis) > 1 else None)
         plot_socioeconomic_variables(sub_df)
 
@@ -133,32 +160,8 @@ def plot_graphs_saber_once(**kwargs) -> None:
     # Tiene Institución
     insts = [kwargs[param] for param in kwargs if 'institution' in param and kwargs[param] is not None]
     sub_df = sub_df[sub_df[label_institution].isin(insts)]
+    df_describe_to_json(sub_df)
     plot_puntuations_variables(sub_df, hue=label_institution if len(insts) > 1 else None)
     plot_socioeconomic_variables(sub_df)
     
     to_zip('static/imgs/saber_11/imgs.zip', 'static/imgs/saber_11')
-# Lista de columnas a describir
-columns_to_describe = [
-    'PUNT_INGLES', 
-    'PUNT_MATEMATICAS', 
-    'PUNT_SOCIALES_CIUDADANAS', 
-    'PUNT_C_NATURALES', 
-    'PUNT_LECTURA_CRITICA', 
-    'PUNT_GLOBAL'
-]
-
-# Descripción de las columnas seleccionadas
-df_describe = df[columns_to_describe].describe()
-
-# Conversión de la descripción a un formato más organizado
-description_dict = {}
-for column in df_describe.columns:
-    description_dict[column] = df_describe[column].to_dict()
-
-# Guardado de la descripción en un archivo JSON
-json_path = 'static/imgs/saber_11/data_description.json'
-with open(json_path, 'w') as json_file:
-    json.dump(description_dict, json_file, indent=4)
-
-# Empaquetar el archivo JSON en un archivo ZIP separado
-to_zip('static/imgs/saber_11/json.zip', [json_path])
